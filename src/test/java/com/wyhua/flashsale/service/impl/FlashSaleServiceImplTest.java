@@ -32,8 +32,8 @@ class FlashSaleServiceImplTest {
         try{
             flashSaleService.getSaleUrl(1002);
         }catch( BaseException exception){
-            System.out.println(exception.getState().toString());
-            assertEquals(exception.getState(), ResultState.SALE_OVER);
+            System.out.println(exception.getResultState().toString());
+            assertEquals(exception.getResultState(), ResultState.SALE_OVER);
         }
     }
 
@@ -41,8 +41,7 @@ class FlashSaleServiceImplTest {
     @Test
     void getProductInfo() {
         List<ProductInfo> productInfoList= flashSaleService.findAllInfo();
-        for (int i = 0; i < productInfoList.size(); i++) {
-            ProductInfo productInfo=productInfoList.get(i);
+        for (ProductInfo productInfo : productInfoList) {
             assertEquals(flashSaleService.getProductInfoFromCache(productInfo.getProductId()),productInfo);
         }
     }
@@ -50,8 +49,7 @@ class FlashSaleServiceImplTest {
     @Test
     void getProductAmount() {
         List<ProductInfo> productInfoList= flashSaleService.findAllInfo();
-        for (int i = 0; i < productInfoList.size(); i++) {
-            ProductInfo productInfo = productInfoList.get(i);
+        for (ProductInfo productInfo : productInfoList) {
             assertEquals(flashSaleService.getProductAmountFromCache(productInfo.getProductId()),productInfo.getAmount());
         }
 
@@ -62,13 +60,13 @@ class FlashSaleServiceImplTest {
         try{
             flashSaleService.makePurchase(1002,"15012345678", flashSaleService.getMD5(1002));
         }catch( BaseException exception){
-            System.out.println(exception.getState().toString());
-            assertEquals(exception.getState(), ResultState.SALE_OVER);
+            System.out.println(exception.getResultState().toString());
+            assertEquals(exception.getResultState(), ResultState.SALE_OVER);
         }
         int amount=flashSaleService.getProductAmountFromCache(1003);
         OrderDto orderDto=  flashSaleService.makePurchase(1003,"15012345678", flashSaleService.getMD5(1003));
         assertEquals(flashSaleService.getProductAmountFromCache(1003),amount-1);
         assertEquals(orderDto.getUserPhone(),"15012345678");
-        System.out.println(orderDto.toString());
+        System.out.println(orderDto);
     }
 }

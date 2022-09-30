@@ -6,10 +6,10 @@ import lombok.Getter;
 @Getter
 public class BaseException extends RuntimeException {
 
-    private ResultState state;
+    private ResultState resultState;
 
     public BaseException(ResultState resultState){
         super(resultState.getMessage());
-        this.state=resultState;
+        this.resultState =resultState;
     }
 }

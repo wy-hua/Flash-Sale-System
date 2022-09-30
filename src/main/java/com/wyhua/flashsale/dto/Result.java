@@ -20,12 +20,6 @@ public class Result <T>{
         this.code=resultState.getCode();
         this.message=resultState.getMessage();
         this.data=data;
-        if(resultState!=ResultState.SUCCESS){
-            this.isSuccess=false;
-        }
-        else{
-            this.isSuccess=true;
-        }
+        this.isSuccess= resultState==ResultState.SUCCESS;
     }
-
 }
