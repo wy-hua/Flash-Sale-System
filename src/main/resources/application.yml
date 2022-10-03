@@ -33,3 +33,14 @@ spring:
     host: 43.142.66.17
     port: 6379
     password: Hua4222433
+  rabbitmq:
+    host: 43.142.66.17
+    port: 5672
+    username: guest
+    password: guest
+    listener:
+      simple:
+        retry:
+          enabled: true
+          max-attempts: 3 #最大重试次数
+          initial-interval: 3000 #重试间隔时间（单位毫秒）

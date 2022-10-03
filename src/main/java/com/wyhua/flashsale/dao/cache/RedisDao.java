@@ -77,15 +77,15 @@ public class RedisDao {
         return String.format(COMMODITY_LOCK_KEY,id);
     }
 
-    public  void saveProductAmount(Long id,int amount){
+    public  void saveProductAmount(Long id,Long amount){
         String key=productAmountKey(id);
         template.opsForValue().set(key,amount);
     }
 
-    public Integer  getProductAmount(Long id){
+    public Long  getProductAmount(Long id){
         String key=productAmountKey(id);
 //        if the key doesn't exist
-        return (Integer) template.opsForValue().get(key);
+        return ((Number) template.opsForValue().get(key)).longValue();
     }
 
     public void saveProductInfo(ProductInfo productInfo){

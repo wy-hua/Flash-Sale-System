@@ -22,7 +22,7 @@ class RedisDaoTest {
     private  RedisTemplate<String, Object> template;
     @Test
     void saveAndGetProductInfo() {
-        ProductInfo productInfo =new ProductInfo(1003L,"iphone14",1000,new Date(),new Date(),null);
+        ProductInfo productInfo =new ProductInfo(1003L,"iphone14",1000L,new Date(),new Date(),null);
         redisDao.saveProductInfo(productInfo);
         assertEquals(redisDao.getProductInfo(1003L).getAmount(), productInfo.getAmount());
 
@@ -40,7 +40,7 @@ class RedisDaoTest {
                 redisDao.decrementProduct(1003L,false);
             }
         }
-        int amount=10000;
+        long amount=10000;
         redisDao.saveProductAmount(1003L,amount);
         List<Integer> testList= List.of(1,10,100,100);
         for (int i = 0; i < testList.size(); i++) {
@@ -62,7 +62,7 @@ class RedisDaoTest {
 
     @Test
     void saveProductAmount() {
-        redisDao.saveProductAmount(1003L,1000);
+        redisDao.saveProductAmount(1003L,1000L);
         assertEquals(redisDao.getProductAmount(1003L),1000);
         template.delete(redisDao.productAmountKey(1003L));
 

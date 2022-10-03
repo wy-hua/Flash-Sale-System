@@ -6,7 +6,7 @@ public class RedisPrefixConst {
     /**
      *     get detail information based on commodity ID
      */
-    public final static String COMMODITY_INFO="commodityInfo:%d";
-    public final static String COMMODITY_LOCK_KEY = "commodityLock:%d";
-    public final static String COMMODITY_AMOUNT="commodityAmount:%d";
+    public final static String COMMODITY_INFO="productInfo:%d";
+    public final static String COMMODITY_LOCK_KEY = "productLock:%d";
+    public final static String COMMODITY_AMOUNT="productAmount:%d";
 }

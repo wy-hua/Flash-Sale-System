@@ -12,8 +12,8 @@ Every purchase request doesn't go directly to the server. Instead, the request i
 
 - [x] code the data access object and service layers
 
-- [ ] add message queue service to the project 
+- [x] add message queue service to the project 
 
-- [ ] finish the controller layer
+- [x] finish the controller layer
 
   

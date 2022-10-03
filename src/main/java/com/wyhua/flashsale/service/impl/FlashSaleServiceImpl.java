@@ -57,7 +57,7 @@ public class FlashSaleServiceImpl implements FlashSaleService {
      * @throws BaseException
      */
     private ProductInfo checkIfSaleOpenAndGetProductInfo(long id) throws BaseException{
-        ProductInfo productInfo= getProductInfoFromCache(id);
+        ProductInfo productInfo= getProductInfo(id);
         if(productInfo==null)
             throw new BaseException(ResultState.PRODUCT_NOT_EXIST);
         Date now=new Date();
@@ -70,20 +70,25 @@ public class FlashSaleServiceImpl implements FlashSaleService {
 
 
     @Override
-    public String getSaleUrl(long id) throws BaseException {
+    public String getSaleUrl(long productId) throws BaseException {
 
 //        check whether the product is in sale
-        if(checkIfSaleOpenAndGetProductInfo(id)!=null)
-            return getMD5(id);
+        if(checkIfSaleOpenAndGetProductInfo(productId)!=null)
+            return getMD5(productId);
         else
             return null;
     }
 
     @Override
-    public ProductInfo getProductInfoFromCache(long id) {
-        ProductInfo res=redisDao.getProductInfo(id);
+    public boolean isSaleUrlValid(long productId, String md5) {
+        return false;
+    }
+
+    @Override
+    public ProductInfo getProductInfo(long productId) {
+        ProductInfo res=redisDao.getProductInfo(productId);
         if(res==null){
-            res= productInfoDao.findById(id).orElse(null);
+            res= productInfoDao.findById(productId).orElse(null);
             if(res==null)
                 return null;
             redisDao.saveProductInfo(res);
@@ -95,45 +100,58 @@ public class FlashSaleServiceImpl implements FlashSaleService {
 
 
     @Override
-    public Integer getProductAmountFromCache(long id)  {
-        Integer result=redisDao.getProductAmount(id);
+    public Long getProductAmount(long productId)  {
+        Long result=redisDao.getProductAmount(productId);
 //       if the amount is not cached,get it from the database and cache it
         if(result==null){
-            ProductInfo productInfo= getProductInfoFromCache(id);
+            ProductInfo productInfo= getProductInfo(productId);
             if(productInfo!=null){
                 result=productInfo.getAmount();
-                redisDao.saveProductAmount(id,result);
+                redisDao.saveProductAmount(productId,result);
             }
         }
         return  result;
     }
 
+
+    @Override
+    public Long decrementProductAmountInCache(long productId,String md5) throws BaseException {
+        //      decrement the product's amount stored in cache in advance (by one)
+        ProductInfo productInfo= checkIfSaleOpenAndGetProductInfo(productId);
+        if(!md5.equals(getMD5(productId))){
+            throw new  BaseException(ResultState.SALE_URL_ERROR);
+        }
+        long amount= getProductAmount(productId);
+        if(amount==0)
+            throw new BaseException(ResultState.OUT_OF_STOCK);
+        else{
+            return redisDao.decrementProduct(productId,false);
+        }
+    }
+
     @Transactional
     @Override
-    public OrderDto makePurchase(long productId, String userPhone, String md5) throws BaseException {
-//        check whether the md5 is correct
+    public Long makePurchase(long productId, String userPhone, String md5,Date purchaseTime) throws BaseException {
+//      check whether the md5 is correct
         if(!getMD5(productId).equals(md5))
             throw new BaseException(ResultState.SALE_URL_ERROR);
 
-        ProductInfo productInfo=checkIfSaleOpenAndGetProductInfo(productId);
 
-//        save the order
+
+
+//      save the order
         OrderInfo orderInfo=new OrderInfo();
         orderInfo.setProductId(productId);
         orderInfo.setUserPhone(userPhone);
         orderInfo.setState((short)1);
-        orderInfo.setCreateTime(new Date());
+        orderInfo.setCreateTime(purchaseTime);
         orderInfo= orderInfoDao.save(orderInfo);
+//       decrement the product's amount stored in database
+        long affectedRows= productInfoDao.decreaseAmountByOne(productId,purchaseTime);
 
-//       decrement the existing amount of the product by one
-        int amount= getProductAmountFromCache(productId);
-        if(amount==0)
-            throw new BaseException(ResultState.OUT_OF_STOCK);
-        else{
-            redisDao.decrementProduct(productId,false);
-        }
+//        return new OrderDto(orderInfo.getOrderId(), productId,userPhone,orderInfo.getCreateTime(),
+//                OrderState.SUCCESS.getState(),OrderState.SUCCESS.getInfo());
+        return affectedRows;
 
-        return new OrderDto(orderInfo.getOrderId(), productId,userPhone,orderInfo.getCreateTime(),
-                OrderState.SUCCESS.getState(),OrderState.SUCCESS.getInfo());
     }
 }

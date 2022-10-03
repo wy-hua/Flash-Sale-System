@@ -36,7 +36,7 @@ public class ProductInfo {
     /**
      * stock quantity,库存数量
      */
-    private Integer amount;
+    private Long amount;
 
     /**
      * when the flash sale will start,秒杀开始时间
