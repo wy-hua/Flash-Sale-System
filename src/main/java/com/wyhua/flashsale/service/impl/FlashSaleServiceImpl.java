@@ -137,8 +137,6 @@ public class FlashSaleServiceImpl implements FlashSaleService {
             throw new BaseException(ResultState.SALE_URL_ERROR);
 
 
-
-
 //      save the order
         OrderInfo orderInfo=new OrderInfo();
         orderInfo.setProductId(productId);

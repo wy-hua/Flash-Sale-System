@@ -10,7 +10,7 @@ spring:
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://43.142.66.17:3306/flashsale?serverTimezone=Asia/Shanghai&allowMultiQueries=true
+    url: jdbc:mysql://172.17.0.5:3306/flashsale?serverTimezone=Asia/Shanghai&allowMultiQueries=true
     username: root
     password: Hua4222433
     hikari:
@@ -30,11 +30,11 @@ spring:
       connection-test-query: SELECT 1
   # redis??
   redis:
-    host: 43.142.66.17
+    host: 172.17.0.3
     port: 6379
     password: Hua4222433
   rabbitmq:
-    host: 43.142.66.17
+    host: 172.17.0.4
     port: 5672
     username: guest
     password: guest

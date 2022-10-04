@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.wyhua</groupId>
-    <artifactId>Flash_Sale</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <name>Flash_Sale</name>
-    <description>Flash_Sale</description>
+    <artifactId>flash-sale</artifactId>
+    <version>0.0.1</version>
+    <name>flash-sale</name>
+    <description>flash-sale</description>
     <properties>
         <java.version>17</java.version>
     </properties>
