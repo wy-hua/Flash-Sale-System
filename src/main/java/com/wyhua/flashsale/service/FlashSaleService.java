@@ -2,7 +2,7 @@ package com.wyhua.flashsale.service;
 
 import com.wyhua.flashsale.dto.OrderDto;
 import com.wyhua.flashsale.entity.ProductInfo;
-import com.wyhua.flashsale.exception.BaseException;
+import com.wyhua.flashsale.exception.*;
 
 import java.util.Date;
 import java.util.List;
@@ -10,52 +10,64 @@ import java.util.Optional;
 
 public interface FlashSaleService {
 
-    List<ProductInfo> findAllInfo();
+    public List<ProductInfo> findAllInfo();
+
 
     /**
-     * get a product's purchase URL by its ID
-     * @param productId  product ID
-     * @return  MD5 string for the purchase URL
+     *  get a product's purchase URL by its ID
+     * @param productId
+     * @return   the MD5 encryption part of the purchase Url
+     * @throws ProductNotFoundException
+     * @throws SaleIsOverException
+     * @throws SaleNotOpenException
      */
-    String getSaleUrl(long productId) throws BaseException;
+    public String getSaleUrl(long productId) throws ProductNotFoundException, SaleIsOverException, SaleNotOpenException;
 
     /**
      * check whether the sale url is valid
-     * @param md5
+     * @param md5 the MD5 encryption part of the purchase Url
      * @return
      */
-    boolean isSaleUrlValid(long productId,String md5);
+    public boolean isSaleUrlValid(long productId,String md5);
 
     /**
      * try to get product information from cache,if failed then get it from database and save it to cache
      * @param productId  product ID
      * @return return null if the product doesn't exist either in cache or database
      */
-    ProductInfo getProductInfo(long productId);
+    public ProductInfo getProductInfo(long productId);
 
     /**
      * try to get a product's information by its ID from cache, if failed then get it from database and save it to cache
      * @param productId
      * @return return null if the product's amount doesn't exist either in cache or database
      */
-    Long getProductAmount(long productId) ;
+    public Long getProductAmount(long productId) ;
+
 
     /**
      *  decrement the product's amount stored in cache in advance (by one)
-     * @param productId product ID
-     * @return  return the product's amount after being decremented. If it doesn't exist in cache, return null
-     * @throws BaseException  throw BaseException if the sale is close or the product doesn't exist or the product's amount is zero
+     * @param productId  product ID
+     * @return  the product's amount after being decremented. If it doesn't exist in cache, return null
+     * @throws WrongSaleUrlException
+     * @throws OutOfStockException
+     * @throws ProductNotFoundException
+     * @throws SaleIsOverException
+     * @throws SaleNotOpenException
      */
-    Long decrementProductAmountInCache(long productId, String md5) throws BaseException;
+    public Long decrementProductAmountInCache(long productId)
+            throws OutOfStockException,ProductNotFoundException,SaleIsOverException,SaleNotOpenException;
+
 
     /**
      *  After decrementing the product's amount stored in cache, modify the data in database
-     *  Insert a new order into the database and decrease the amount of the product
-     * @param productId  product ID
-     * @param userPhone  user phone number
-     * @param md5  sale url
-     * @return    return the product's amount stored in database after the purchase. If it failed, return null
+     *  Insert a new order into the database and decrease the amount of product
+     * @param productId
+     * @param userPhone
+     * @param purchaseTime
+     * @return
+     * @throws WrongSaleUrlException
      */
-    Long makePurchase(long productId, String userPhone, String md5, Date purchaseTime) throws BaseException;
+    public Long makePurchaseInDataBase(long productId, String userPhone, Date purchaseTime);
 
 }

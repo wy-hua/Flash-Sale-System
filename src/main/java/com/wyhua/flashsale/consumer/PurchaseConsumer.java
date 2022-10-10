@@ -1,6 +1,5 @@
 package com.wyhua.flashsale.consumer;
 
-import com.wyhua.flashsale.constant.MessageQueueConst;
 import com.wyhua.flashsale.dto.PurchaseMsg;
 import com.wyhua.flashsale.service.FlashSaleService;
 import org.springframework.amqp.rabbit.annotation.RabbitHandler;
@@ -8,7 +7,6 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 import static com.wyhua.flashsale.constant.MessageQueueConst.PURCHASE_QUEUE;
 
@@ -23,6 +21,6 @@ public class PurchaseConsumer {
     private RabbitTemplate rabbitTemplate;
     @RabbitHandler
     public void processPurchaseMessage(PurchaseMsg msg){
-        flashSaleService.makePurchase(msg.getProductId(), msg.getUserPhone(), msg.getMd5(),msg.getPurchaseTime());
+        flashSaleService.makePurchaseInDataBase(msg.getProductId(), msg.getUserPhone(),msg.getPurchaseTime());
     }
 }

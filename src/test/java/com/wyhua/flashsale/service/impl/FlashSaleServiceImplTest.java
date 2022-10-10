@@ -1,9 +1,7 @@
 package com.wyhua.flashsale.service.impl;
 
-import com.wyhua.flashsale.dto.OrderDto;
 import com.wyhua.flashsale.entity.ProductInfo;
-import com.wyhua.flashsale.enums.ResultState;
-import com.wyhua.flashsale.exception.BaseException;
+import com.wyhua.flashsale.exception.SaleIsOverException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -31,9 +29,8 @@ class FlashSaleServiceImplTest {
         assertNotNull(flashSaleService.getSaleUrl(1003));
         try{
             flashSaleService.getSaleUrl(1002);
-        }catch( BaseException exception){
-            System.out.println(exception.getResultState().toString());
-            assertEquals(exception.getResultState(), ResultState.SALE_OVER);
+        }catch( RuntimeException exception){
+            assertTrue(exception instanceof SaleIsOverException);
         }
     }
 

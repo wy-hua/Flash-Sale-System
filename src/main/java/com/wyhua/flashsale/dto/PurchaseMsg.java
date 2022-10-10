@@ -12,6 +12,5 @@ import java.util.Date;
 public class PurchaseMsg {
     private  long productId;
     private String userPhone;
-    private  String md5;
     private Date purchaseTime;
 }

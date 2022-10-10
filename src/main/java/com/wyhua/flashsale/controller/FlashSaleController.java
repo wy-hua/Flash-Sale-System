@@ -1,16 +1,12 @@
 package com.wyhua.flashsale.controller;
 
-import com.wyhua.flashsale.dto.OrderDto;
 import com.wyhua.flashsale.dto.PurchaseMsg;
-import com.wyhua.flashsale.dto.Result;
 import com.wyhua.flashsale.entity.ProductInfo;
-import com.wyhua.flashsale.enums.ResultState;
-import com.wyhua.flashsale.exception.BaseException;
+import com.wyhua.flashsale.exception.WrongSaleUrlException;
 import com.wyhua.flashsale.service.FlashSaleService;
-import org.aspectj.weaver.ast.Or;
-import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
@@ -27,60 +23,32 @@ public class FlashSaleController {
     private RabbitTemplate rabbitTemplate;
 
     @GetMapping("/flashSale/products/{productId}/saleUrl")
-    public Result<String> getSaleUrl(@PathVariable("productId") long id){
+    public ResponseEntity<String> getSaleUrl(@PathVariable("productId") long id){
         String url;
-        try{
-            url=flashSaleService.getSaleUrl(id);
-
-        }
-        catch (BaseException baseException){
-            return new Result<>(baseException.getResultState(),null);
-        }
-        return new Result<>(ResultState.SUCCESS,url);
-
+        url=flashSaleService.getSaleUrl(id);
+        return ResponseEntity.ok(url);
     }
 
     @GetMapping("/flashSale/products/info")
-    public  Result<List<ProductInfo>> getAllProductInfo(){
-        return new Result<>(ResultState.SUCCESS,flashSaleService.findAllInfo());
+    public  ResponseEntity<List<ProductInfo>> getAllProductInfo(){
+        return ResponseEntity.ok(flashSaleService.findAllInfo());
     }
 
     @GetMapping("/flashSale/products/{productId}/amount")
-    public Result<Long> getProductAmount(@PathVariable("productId") long id){
-        return new Result<>(ResultState.SUCCESS,flashSaleService.getProductAmount(id));
+    public ResponseEntity<Long> getProductAmount(@PathVariable("productId") long id){
+        return ResponseEntity.ok(flashSaleService.getProductAmount(id));
     }
 
     @PostMapping("/flashSale/order")
-    public Result<String> purchase(@RequestParam(value = "userPhone") String  userPhone,
+    public ResponseEntity<Object> purchase(@RequestParam(value = "userPhone") String  userPhone,
                                     @RequestParam("productId") String productIdStr,@RequestParam("saleUrl") String md5){
 
         long productId=Long.valueOf(productIdStr);
-        Result<String> result;
-        try{
-            flashSaleService.decrementProductAmountInCache(productId,md5);
-            PurchaseMsg purchaseMsg=new PurchaseMsg(productId,userPhone,md5,new Date());
-            rabbitTemplate.convertAndSend(PURCHASE_EXCHANGE,PURCHASE_QUEUE,purchaseMsg);
-
-
-            result= new Result<>(ResultState.SUCCESS,null);
-        }catch (BaseException e){
-            result=new Result<>(e.getResultState(),null);
-        }
-        return  result;
-
-
-//        try {
-//            flashSaleService.makePurchase(productId,userPhone,md5);
-//        }
-//        catch (BaseException e){
-//            return new Result<>(e.getResultState(),null);
-//        }
-//        return new Result<>(ResultState.SUCCESS,orderDto);
+        if(!flashSaleService.isSaleUrlValid(productId,md5))
+            throw new WrongSaleUrlException(productId);
+        flashSaleService.decrementProductAmountInCache(productId);
+        PurchaseMsg purchaseMsg=new PurchaseMsg(productId,userPhone,new Date());
+        rabbitTemplate.convertAndSend(PURCHASE_EXCHANGE,PURCHASE_QUEUE,purchaseMsg);
+        return  ResponseEntity.ok(null);
     }
-//    @PostMapping()
-//    public Result<OrderDto> purchase()
-
-
-
-
 }
